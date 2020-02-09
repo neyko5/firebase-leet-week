@@ -44,7 +44,7 @@ function App() {
     <div className="App">
       <header className="App-header">
         {user ? (
-          <Recipies></Recipies>
+          <Recipies user={user}></Recipies>
         ) : (
           <button onClick={loginWithGoogle}>Login with Google</button>
         )}
