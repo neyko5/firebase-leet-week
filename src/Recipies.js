@@ -1,6 +1,7 @@
-import firebase from "./firebase";
-import React, { useReducer } from "react";
+//import firebase from "./firebase";
+import React from "react";
 import uuid from "uuid";
+import Recipie from "./Recepie";
 
 const INITIAL_FORM = {
   title: "",
@@ -9,35 +10,22 @@ const INITIAL_FORM = {
 };
 
 const types = {
-  "risotto": "Risotto",
-  "pasta": "Pasta",
-  "steak": "Steak"
-}
-
-function snapshotToArray(snapshot) {
-  var returnArr = [];
-
-  snapshot.forEach(function(childSnapshot) {
-    var item = childSnapshot.data();
-    item.id = childSnapshot.id;
-
-    returnArr.push(item);
-  });
-
-  return returnArr;
-}
+  Risotto: "Risotto",
+  Pasta: "Pasta",
+  Steak: "Steak"
+};
 
 function Recipies(props) {
-  const [list, setList] = React.useState([]);
+  const [list, setList] = React.useState({});
   const [form, setForm] = React.useState(INITIAL_FORM);
   React.useEffect(() => {
-    firebase
+    /*firebase
       .firestore()
       .collection("cool")
       .onSnapshot(snapshot => {
-        let docs = snapshotToArray(snapshot);
+        let docs = collectionSnapshotToArray(snapshot);
         setList(docs);
-      });
+      });*/
   }, []);
 
   function onSubmit(e) {
@@ -47,61 +35,78 @@ function Recipies(props) {
       ...form,
       author: props.user.uid,
       created_at: new Date().getTime(),
-      uuid: uuid()
+      uuid: uuid(),
+      claps: []
     };
+    setList({ ...list, [data.uuid]: data });
+    /*
     firebase
       .firestore()
       .collection("cool")
-      .add(data);
+      .add(data);*/
     setForm(INITIAL_FORM);
   }
 
-  function clap(item){
-    let data = {
+  function clap(item) {
+    let clapData = {
       author: props.user.uid,
+      uuid: uuid(),
       created_at: new Date().getTime()
     };
-    firebase
+    let listItem = list[item.uuid];
+    listItem.claps = [...listItem.claps, clapData];
+    setList({ ...list, [item.uuid]: listItem });
+    /*firebase
       .firestore()
       .collection("/cool/" + item.id + "/claps")
-      .add(data);
+      .add(data);*/
   }
 
   return (
     <>
       <form onSubmit={onSubmit}>
-        <div><label>Title</label>
-        <input
-          value={form.title}
-          onChange={e => setForm({ ...form, title: e.target.value })}
-        /></div>
         <div>
-          <label>Type</label>
+          <label>Title: </label>
+          <input
+            value={form.title}
+            onChange={e => setForm({ ...form, title: e.target.value })}
+          />
+        </div>
+        <div>
+          <label>Difficulty: </label>
           <select
-            value={form.type}
-            onChange={e => setForm({ ...form, type: e.target.value })}
+            value={form.difficulty}
+            onChange={e => setForm({ ...form, difficulty: e.target.value })}
           >
-            {Object.entries(types).map(([key, val]) => {
-              return <option value={key}>{val}</option>
+            {[...Array(5).keys()].map(key => {
+              return (
+                <option key={key} value={key + 1}>
+                  {key + 1}
+                </option>
+              );
             })}
           </select>
         </div>
         <div>
-          <label>Type</label>
+          <label>Type: </label>
           <select
             value={form.type}
             onChange={e => setForm({ ...form, type: e.target.value })}
           >
             {Object.entries(types).map(([key, val]) => {
-              return <option value={key}>{val}</option>
+              return (
+                <option value={key} key={key}>
+                  {val}
+                </option>
+              );
             })}
           </select>
         </div>
         <button type="submit">Submit</button>
       </form>
       <ol>
-        {list.map(item => {
-          return <li key={item.id}>{item.title} <button onClick={() => clap(item)}>Add clap</button></li>;
+        {Object.entries(list).map(([key, item]) => {
+          return <Recipie item={item} key={key} onClap={clap}></Recipie>;
         })}
       </ol>
     </>
