@@ -1,11 +1,12 @@
 //import firebase from "./firebase";
 import React from "react";
 import uuid from "uuid";
-import Recipie from "./Recepie";
+import Recipe from "./Recepe";
 
 const INITIAL_FORM = {
   title: "",
-  type: "",
+  type: "Risotto",
+  difficulty: 1,
   ingredients: []
 };
 
@@ -15,18 +16,9 @@ const types = {
   Steak: "Steak"
 };
 
-function Recipies(props) {
+function Recipes(props) {
   const [list, setList] = React.useState({});
   const [form, setForm] = React.useState(INITIAL_FORM);
-  React.useEffect(() => {
-    /*firebase
-      .firestore()
-      .collection("cool")
-      .onSnapshot(snapshot => {
-        let docs = collectionSnapshotToArray(snapshot);
-        setList(docs);
-      });*/
-  }, []);
 
   function onSubmit(e) {
     e.preventDefault();
@@ -39,31 +31,23 @@ function Recipies(props) {
       claps: []
     };
     setList({ ...list, [data.uuid]: data });
-    /*
-    firebase
-      .firestore()
-      .collection("cool")
-      .add(data);*/
     setForm(INITIAL_FORM);
   }
 
   function clap(item) {
     let clapData = {
-      author: props.user.uid,
+      author: props.user.email,
       uuid: uuid(),
       created_at: new Date().getTime()
     };
     let listItem = list[item.uuid];
     listItem.claps = [...listItem.claps, clapData];
     setList({ ...list, [item.uuid]: listItem });
-    /*firebase
-      .firestore()
-      .collection("/cool/" + item.id + "/claps")
-      .add(data);*/
   }
 
   return (
     <>
+      <h2>Create new recipe</h2>
       <form onSubmit={onSubmit}>
         <div>
           <label>Title: </label>
@@ -104,13 +88,14 @@ function Recipies(props) {
         </div>
         <button type="submit">Submit</button>
       </form>
+      <h2>List of recipes</h2>
       <ol>
         {Object.entries(list).map(([key, item]) => {
-          return <Recipie item={item} key={key} onClap={clap}></Recipie>;
+          return <Recipe item={item} key={key} onClap={clap}></Recipe>;
         })}
       </ol>
     </>
   );
 }
 
-export default Recipies;
+export default Recipes;

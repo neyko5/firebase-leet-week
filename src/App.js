@@ -1,7 +1,7 @@
 import React from "react";
 import "./App.css";
 import firebase from "./firebase";
-import Recipies from "./Recipies";
+import Recipes from "./Recipes";
 
 function App() {
   const [user, setUser] = React.useState();
@@ -33,7 +33,7 @@ function App() {
     <div className="App">
       <header className="App-header">
         {user ? (
-          <Recipies user={user}></Recipies>
+          <Recipes user={user}></Recipes>
         ) : (
           <button onClick={loginWithGoogle}>Login with Google</button>
         )}
